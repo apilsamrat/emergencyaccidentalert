@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "930329931092",
+    "project_id": "emergencyaccidentalertsystem",
+    "storage_bucket": "emergencyaccidentalertsystem.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:930329931092:android:e4d09640241f04a17decc1",
+        "android_client_info": {
+          "package_name": "com.dcomproject.emergencyalert"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "930329931092-dci7rus59studl1ts9o2iarupajt3e8k.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCXqeaPrve-TVSPzG4duQYCmjf1K4sXdrk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "930329931092-dci7rus59studl1ts9o2iarupajt3e8k.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
