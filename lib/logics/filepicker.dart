@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
@@ -15,10 +16,13 @@ class PickFile {
     return pickedFile!.files.first.bytes;
   }
 
-  Future<String?> pickImageMobile() async {
+  Future<File?> pickImageMobile() async {
     FilePickerResult? pickedFile =
         await FilePicker.platform.pickFiles(type: FileType.image);
-    return pickedFile!.files.first.path;
+    if (pickedFile != null) {
+      return File(pickedFile.files.first.path ?? "");
+    } else {
+      return null;
+    }
   }
-
 }

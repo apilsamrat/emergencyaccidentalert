@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:emergencyalert/layouts/toaster.dart';
 import 'package:emergencyalert/logics/filepicker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -6,9 +9,9 @@ Uint8List? _ppSizePhotoWeb;
 Uint8List? _documentFrontWeb;
 Uint8List? _documentBackWeb;
 
-String? _ppSizePhotoMobile;
-String? _documentFrontMobile;
-String? _documentBackMobile;
+File? _ppSizePhotoMobile;
+File? _documentFrontMobile;
+File? _documentBackMobile;
 
 TextEditingController _documentTypeController = TextEditingController();
 TextEditingController _documentNumberController = TextEditingController();
@@ -69,7 +72,7 @@ class _VerifyIdentityPageState extends State<VerifyIdentityPage> {
                                 width: 150,
                               )
                             : !kIsWeb && _ppSizePhotoMobile != null
-                                ? Image.asset(
+                                ? Image.file(
                                     _ppSizePhotoMobile!,
                                     height: 150,
                                     width: 150,
@@ -130,7 +133,7 @@ class _VerifyIdentityPageState extends State<VerifyIdentityPage> {
                                         width: 150,
                                       )
                                     : !kIsWeb && _documentFrontMobile != null
-                                        ? Image.asset(
+                                        ? Image.file(
                                             _documentFrontMobile!,
                                             height: 150,
                                             width: 150,
@@ -178,7 +181,7 @@ class _VerifyIdentityPageState extends State<VerifyIdentityPage> {
                                     width: 150,
                                   )
                                 : !kIsWeb && _documentBackMobile != null
-                                    ? Image.asset(
+                                    ? Image.file(
                                         _documentBackMobile!,
                                         height: 150,
                                         width: 150,
@@ -260,43 +263,68 @@ class _VerifyIdentityPageState extends State<VerifyIdentityPage> {
                 height: 50,
                 child: MaterialButton(
                     onPressed: () {
-                      if (_ppSizePhotoWeb != null ||
-                          _ppSizePhotoMobile != null ||
-                          _documentFrontWeb != null ||
-                          _documentFrontMobile != null ||
-                          _documentBackWeb != null ||
-                          _documentBackMobile != null) {
-                        // Navigator.push(
-                        //   context,
-                        //   MaterialPageRoute(
-                        //     builder: (context) => ConfirmDetailsScreen(
-                        //         _ppSizePhotoWeb,
-                        //         _ppSizePhotoMobile,
-                        //         _documentFrontWeb,
-                        //         _documentFrontMobile,
-                        //         _documentBackWeb,
-                        //         _documentBackMobile,
-                        //         _documentTypeController.text,
-                        //         _documentNumberController.text,
-                        //         _proffessionController.text),
-                        //   ),
-                        // );
+                      if (kIsWeb) {
+                        if (_ppSizePhotoWeb == null ||
+                            _documentFrontWeb == null ||
+                            _documentBackWeb == null ||
+                            _proffessionController.text == "" ||
+                            _documentNumberController.text == "" ||
+                            _documentTypeController.text == "") {
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text("Error"),
+                              content: const Text("Please Fill All Fields"),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                  child: const Text("OKAY"),
+                                ),
+                              ],
+                            ),
+                          );
+                        } else {
+                          AwesomeToaster.showToast(
+                              context: context,
+                              msg:
+                                  "Success on Web || User has Uploaded photos and details");
+                          // TODO: Implement Upload to Firebase and Navigate to Home Page
+                          // TODO: This is web only code
+                          // ToDo: This will run when user inserts all the details and clicks on submit button
+                        }
                       } else {
-                        showDialog(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                            title: const Text("Error"),
-                            content: const Text("Please Fill All Fields"),
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                                child: const Text("OKAY"),
-                              ),
-                            ],
-                          ),
-                        );
+                        if (_ppSizePhotoMobile == null ||
+                            _documentFrontMobile == null ||
+                            _documentBackMobile == null ||
+                            _proffessionController.text == "" ||
+                            _documentNumberController.text == "" ||
+                            _documentTypeController.text == "") {
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text("Error"),
+                              content: const Text("Please Fill All Fields"),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                  child: const Text("OKAY"),
+                                ),
+                              ],
+                            ),
+                          );
+                        } else {
+                          AwesomeToaster.showToast(
+                              context: context,
+                              msg:
+                                  "Success on Mobile || User has Uploaded photos and details");
+                          // TODO: Mobile code
+                          // TODO: This is for mobile only code
+                          // ToDo: This will run when user inserts all the details and clicks on submit button
+                        }
                       }
                     },
                     color: Colors.blue,
