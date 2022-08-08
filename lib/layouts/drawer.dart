@@ -1,7 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:emergencyalert/layouts/home.dart';
 import 'package:emergencyalert/layouts/login.dart';
 import 'package:emergencyalert/layouts/profile.dart';
-import 'package:emergencyalert/layouts/report.dart';
+import 'package:emergencyalert/layouts/toaster.dart';
 import 'package:emergencyalert/layouts/verify.dart';
 import 'package:emergencyalert/resources/colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -18,6 +19,10 @@ String email = "";
 String? photoUrl;
 String displayName = "Unknown";
 int _selectedIndex = 0;
+
+bool isLoading = true;
+
+bool isVerificationRequestSent = false;
 List<String> drawerItems = [
   "Home",
   "Profile",
@@ -39,6 +44,7 @@ class _DrawerPageState extends State<DrawerPage> {
   void initState() {
     super.initState();
     _selectedIndex = 0;
+
     initialize();
   }
 
@@ -46,8 +52,18 @@ class _DrawerPageState extends State<DrawerPage> {
     setState(() {
       user = FirebaseAuth.instance.currentUser;
       userName = user?.displayName ?? "Unknown";
-      accountStatus = user!.emailVerified ? "Verified" : "Not Verified";
       photoUrl = user!.photoURL.toString();
+    });
+    await FirebaseFirestore.instance
+        .doc("users/${FirebaseAuth.instance.currentUser!.uid}")
+        .get()
+        .then((value) {
+      var data = value.data();
+      setState(() {
+        isVerificationRequestSent = data!["verificationRequestSent"] ?? false;
+        isAccountVerified = data["isAccountVerified"] ?? false;
+        isLoading = false;
+      });
     });
   }
 
@@ -56,7 +72,9 @@ class _DrawerPageState extends State<DrawerPage> {
     setState(() {
       isAccountVerified
           ? accountStatus = "Verified"
-          : accountStatus = "Not Verified";
+          : isVerificationRequestSent
+              ? accountStatus = "Verification in Process"
+              : accountStatus = "Not Verified";
     });
     void onItemTapped(int index) {
       setState(() {
@@ -76,30 +94,50 @@ class _DrawerPageState extends State<DrawerPage> {
           );
           break;
         case 2:
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: ((context) => const ReportPage())),
-          );
+          AwesomeToaster.showToast(
+              context: context, msg: "Settings | Coming Soon");
           break;
         case 3:
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: ((context) => const HomePage())),
-          );
+          AwesomeToaster.showToast(
+              context: context, msg: "About | Coming Soon");
           break;
 
         case 4:
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: ((context) => const LoginPage())),
-          );
+          AwesomeToaster.showToast(context: context, msg: "Help | Coming Soon");
           break;
 
         case 5:
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: ((context) => const LoginPage())),
-          );
+          showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title: const Text("Logout"),
+                  content: const Text("Are you sure you want to logout?"),
+                  actions: <Widget>[
+                    TextButton(
+                      child: Text(
+                        "No",
+                        style: TextStyle(color: blue),
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                    TextButton(
+                      child: const Text("Yes"),
+                      onPressed: () {
+                        FirebaseAuth.instance.signOut();
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: ((context) => const LoginPage())),
+                        );
+                      },
+                    ),
+                  ],
+                );
+              });
           break;
         default:
       }
@@ -115,20 +153,13 @@ class _DrawerPageState extends State<DrawerPage> {
               padding: const EdgeInsets.fromLTRB(2, 10, 2, 10),
               child: Column(
                 children: [
-                  GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        isAccountVerified = !isAccountVerified;
-                      });
-                    },
-                    child: CircleAvatar(
-                        radius: 50,
-                        foregroundImage: NetworkImage(photoUrl!),
-                        child: const CupertinoActivityIndicator(
-                          color: Colors.white,
-                          radius: 10,
-                        )),
-                  ),
+                  CircleAvatar(
+                      radius: 50,
+                      foregroundImage: NetworkImage(photoUrl!),
+                      child: const CupertinoActivityIndicator(
+                        color: Colors.white,
+                        radius: 10,
+                      )),
                   const SizedBox(
                     height: 10,
                   ),
@@ -157,58 +188,91 @@ class _DrawerPageState extends State<DrawerPage> {
                             ),
                     ],
                   ),
-                  Text(
-                    accountStatus,
-                    style: TextStyle(
-                        fontFamily: "adventPro",
-                        color: isAccountVerified ? Colors.blue : Colors.red,
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold),
-                  ),
-                  if (!isAccountVerified)
-                    Column(
-                      children: [
-                        const SizedBox(height: 20),
-                        Text(
-                          "Please, verify your account to use the app properly.\n",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                              fontFamily: "adventPro",
-                              color:
-                                  isAccountVerified ? Colors.blue : Colors.red,
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) =>
-                                    const VerifyIdentityPage()));
-                          },
-                          style: ButtonStyle(
-                              minimumSize: MaterialStateProperty.all(
-                                  const Size(125, 40)),
-                              backgroundColor:
-                                  MaterialStateProperty.all(Colors.blue)),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: const [
-                              Text(
-                                "Verify  ",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold),
+                  !isLoading
+                      ? Column(
+                          children: [
+                            Text(
+                              accountStatus,
+                              style: TextStyle(
+                                  fontFamily: "adventPro",
+                                  color: isAccountVerified
+                                      ? Colors.blue
+                                      : Colors.red,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            if (!isAccountVerified)
+                              Column(
+                                children: [
+                                  const SizedBox(height: 20),
+                                  !isVerificationRequestSent
+                                      ? Text(
+                                          "Please, verify your account to use the app properly.\n",
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                              fontFamily: "adventPro",
+                                              color: isAccountVerified
+                                                  ? Colors.blue
+                                                  : Colors.red,
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.bold),
+                                        )
+                                      : const Text(
+                                          "Please, Provide us at least two business days to verify  your account\n",
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                              fontFamily: "adventPro",
+                                              color: Colors.blue,
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                  !isVerificationRequestSent
+                                      ? TextButton(
+                                          onPressed: () {
+                                            Navigator.of(context).push(
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        const VerifyIdentityPage()));
+                                          },
+                                          style: ButtonStyle(
+                                              minimumSize:
+                                                  MaterialStateProperty.all(
+                                                      const Size(125, 40)),
+                                              backgroundColor:
+                                                  MaterialStateProperty.all(
+                                                      Colors.blue)),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: const [
+                                              Text(
+                                                "Verify  ",
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                              Icon(
+                                                CupertinoIcons
+                                                    .arrow_right_circle_fill,
+                                                color: Colors.white,
+                                              ),
+                                            ],
+                                          ),
+                                        )
+                                      : const SizedBox()
+                                ],
                               ),
-                              Icon(
-                                CupertinoIcons.arrow_right_circle_fill,
-                                color: Colors.white,
-                              ),
-                            ],
+                          ],
+                        )
+                      : const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: CupertinoActivityIndicator(
+                            radius: 10,
+                            color: Colors.blue,
                           ),
                         ),
-                      ],
-                    ),
                 ],
               ),
             ),

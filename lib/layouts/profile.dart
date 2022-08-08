@@ -1,9 +1,19 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:emergencyalert/resources/colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 bool _isEditProfile = false;
+
+String? pp;
+String? front;
+String? back;
+String? documentType;
+String? documentNumber;
+String? profession;
+
+bool isLoading = true;
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -13,6 +23,31 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  @override
+  void initState() {
+    super.initState();
+    initialize();
+  }
+
+  void initialize() async {
+    FirebaseFirestore.instance
+        .doc(
+            "users/${FirebaseAuth.instance.currentUser!.uid}/documents/${FirebaseAuth.instance.currentUser!.uid}")
+        .get()
+        .then((value) {
+      var data = value.data();
+      setState(() {
+        pp = data!["pp"];
+        front = data["front"];
+        back = data["back"];
+        documentType = data["documentType"];
+        documentNumber = data["documentNumber"];
+        profession = data["profession"];
+        isLoading = false;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -116,6 +151,118 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                         ),
                       ),
+                      !isLoading
+                          ? Card(
+                              elevation: 5,
+                              child: Container(
+                                padding: const EdgeInsets.all(8),
+                                child: Column(children: [
+                                  const Text("Your Legal Profile",
+                                      style: TextStyle(
+                                          fontFamily: "vt323",
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.w600)),
+                                  const SizedBox(height: 18),
+                                  Row(
+                                    children: [
+                                      Text("Document Type: $documentType",
+                                          style: const TextStyle(
+                                            fontFamily: "vt323",
+                                            fontSize: 20,
+                                          ))
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Row(
+                                    children: [
+                                      Text("Document Number: $documentNumber",
+                                          style: const TextStyle(
+                                            fontFamily: "vt323",
+                                            fontSize: 20,
+                                          ))
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Row(
+                                    children: [
+                                      Text("Profession: $profession",
+                                          style: const TextStyle(
+                                            fontFamily: "vt323",
+                                            fontSize: 20,
+                                          ))
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Padding(
+                                    padding:
+                                        const EdgeInsets.fromLTRB(0, 10, 0, 5),
+                                    child: Row(
+                                      children: const [
+                                        Text("Front of Document:",
+                                            style: TextStyle(
+                                              fontFamily: "vt323",
+                                              fontSize: 20,
+                                            ))
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 100,
+                                    child: Image.network(
+                                      front ?? "",
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding:
+                                        const EdgeInsets.fromLTRB(0, 10, 0, 5),
+                                    child: Row(
+                                      children: const [
+                                        Text("Back of Document:",
+                                            style: TextStyle(
+                                              fontFamily: "vt323",
+                                              fontSize: 20,
+                                            ))
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 100,
+                                    child: Image.network(
+                                      back ?? "",
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding:
+                                        const EdgeInsets.fromLTRB(0, 10, 0, 5),
+                                    child: Row(
+                                      children: const [
+                                        Text("Profile Picture:",
+                                            style: TextStyle(
+                                              fontFamily: "vt323",
+                                              fontSize: 20,
+                                            )),
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 100,
+                                    child: Image.network(
+                                      pp ?? "",
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                ]),
+                              ),
+                            )
+                          : SizedBox(
+                              height: 200,
+                              child: CupertinoActivityIndicator(
+                                radius: 20,
+                                color: blue,
+                              ),
+                            ),
                     ],
                   ),
                 ),

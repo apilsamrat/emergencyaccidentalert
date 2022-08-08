@@ -1,9 +1,15 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:emergencyalert/layouts/toaster.dart';
 import 'package:emergencyalert/logics/filepicker.dart';
+import 'package:emergencyalert/logics/send_email.dart';
+import 'package:emergencyalert/logics/verify_logic.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+
+bool _isUploadingEnabled = true;
 
 Uint8List? _ppSizePhotoWeb;
 Uint8List? _documentFrontWeb;
@@ -27,6 +33,9 @@ class VerifyIdentityPage extends StatefulWidget {
 class _VerifyIdentityPageState extends State<VerifyIdentityPage> {
   @override
   Widget build(BuildContext context) {
+    String userName = FirebaseAuth.instance.currentUser!.displayName.toString();
+    String message =
+        "Hi, I am ${FirebaseAuth.instance.currentUser!.displayName} and I am requesting you to verify my identity on Emergency Alert App.\n\nMy Identity is as follows:\n userName: $userName \n email: ${FirebaseAuth.instance.currentUser!.email} \n uid: ${FirebaseAuth.instance.currentUser!.uid}\n\nPlease verify my identity and send me a message when you are done.\n\nThanks!";
     return SafeArea(
         child: Scaffold(
       appBar: AppBar(
@@ -236,6 +245,9 @@ class _VerifyIdentityPageState extends State<VerifyIdentityPage> {
                           labelText: "Document Type eg. Passport, Citizenship",
                           border: OutlineInputBorder(),
                         ),
+                        onChanged: (value) {
+                          _isUploadingEnabled = true;
+                        },
                       ),
                       const SizedBox(height: 10),
                       TextField(
@@ -245,6 +257,9 @@ class _VerifyIdentityPageState extends State<VerifyIdentityPage> {
                           labelText: "Document Number",
                           border: OutlineInputBorder(),
                         ),
+                        onChanged: (value) {
+                          _isUploadingEnabled = true;
+                        },
                       ),
                       const SizedBox(height: 10),
                       TextField(
@@ -254,6 +269,9 @@ class _VerifyIdentityPageState extends State<VerifyIdentityPage> {
                           labelText: "Your Proffession",
                           border: OutlineInputBorder(),
                         ),
+                        onChanged: (value) {
+                          _isUploadingEnabled = true;
+                        },
                       ),
                     ],
                   ),
@@ -286,13 +304,35 @@ class _VerifyIdentityPageState extends State<VerifyIdentityPage> {
                             ),
                           );
                         } else {
-                          AwesomeToaster.showToast(
-                              context: context,
-                              msg:
-                                  "Success on Web || User has Uploaded photos and details");
-                          // TODO: Implement Upload to Firebase and Navigate to Home Page
-                          // TODO: This is web only code
-                          // ToDo: This will run when user inserts all the details and clicks on submit button
+                          if (_isUploadingEnabled) {
+                            _isUploadingEnabled = false;
+                            AwesomeToaster.showToast(
+                                context: context,
+                                msg: "Uploading Please Wait....");
+                            Verify(context)
+                                .applyForVerifyWeb(
+                                    ppSize: _ppSizePhotoWeb!,
+                                    front: _documentFrontWeb!,
+                                    back: _documentBackWeb!,
+                                    documentType: _documentTypeController.text,
+                                    documentNumber:
+                                        _documentNumberController.text,
+                                    profession: _proffessionController.text)
+                                .then((value) {
+                              FirebaseFirestore.instance
+                                  .doc(
+                                      "users/${FirebaseAuth.instance.currentUser!.uid}/")
+                                  .update({
+                                "verificationRequestSent": true,
+                              });
+                              SendEmail(userName: userName, message: message)
+                                  .forVerification();
+                              AwesomeToaster.showToast(
+                                  context: context,
+                                  msg:
+                                      "Please Wait While We Verify Your Document");
+                            });
+                          }
                         }
                       } else {
                         if (_ppSizePhotoMobile == null ||
@@ -317,13 +357,33 @@ class _VerifyIdentityPageState extends State<VerifyIdentityPage> {
                             ),
                           );
                         } else {
-                          AwesomeToaster.showToast(
-                              context: context,
-                              msg:
-                                  "Success on Mobile || User has Uploaded photos and details");
-                          // TODO: Mobile code
-                          // TODO: This is for mobile only code
-                          // ToDo: This will run when user inserts all the details and clicks on submit button
+                          if (_isUploadingEnabled) {
+                            _isUploadingEnabled = false;
+                            AwesomeToaster.showToast(
+                                context: context,
+                                msg: "Uploading Please Wait....");
+                            Verify(context)
+                                .applyForVerifyMobile(
+                                    ppSize: _ppSizePhotoMobile!,
+                                    front: _documentFrontMobile!,
+                                    back: _documentBackMobile!,
+                                    documentType: _documentTypeController.text,
+                                    documentNumber:
+                                        _documentNumberController.text,
+                                    profession: _proffessionController.text)
+                                .then((value) {
+                              FirebaseFirestore.instance
+                                  .doc(
+                                      "users/${FirebaseAuth.instance.currentUser!.uid}/")
+                                  .update({
+                                "verificationRequestSent": true,
+                              });
+                              AwesomeToaster.showToast(
+                                  context: context,
+                                  msg:
+                                      "Please Wait While We Verify Your Document");
+                            });
+                          }
                         }
                       }
                     },

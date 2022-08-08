@@ -74,6 +74,7 @@ class AuthUser {
               "email": _email,
               "fullName": fullName,
               "pswd": pswd,
+              "isAccountVerified": false,
             });
           })
           .then((value) => ref.signInWithEmailAndPassword(
