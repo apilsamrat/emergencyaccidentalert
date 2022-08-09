@@ -28,7 +28,10 @@ class Verify {
 
     DocumentReference<Map<String, dynamic>> firebaseFirestoreRef =
         FirebaseFirestore.instance
-            .doc("users/${FirebaseAuth.instance.currentUser!.uid}/documents/");
+            .collection("users")
+            .doc(FirebaseAuth.instance.currentUser!.uid)
+            .collection("documents")
+            .doc(FirebaseAuth.instance.currentUser!.uid);
     try {
       await ppRef.putFile(ppSize);
 
