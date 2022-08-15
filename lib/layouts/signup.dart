@@ -190,19 +190,20 @@ class _SignupPageState extends State<SignupPage> {
                                       type: FileType.image,
                                       dialogTitle: "Select Profile Photo",
                                     );
-
-                                    setState(() {
-                                      if (kIsWeb) {
-                                        _profileImageWeb = result!
-                                                .files.first.bytes ??
-                                            File("/assets/images/person.png")
-                                                .readAsBytesSync();
-                                      } else {
-                                        _profileImage = File(
-                                            result!.files.first.path ??
-                                                "/assets/images/person.png");
-                                      }
-                                    });
+                                    if (result != null) {
+                                      setState(() {
+                                        if (kIsWeb) {
+                                          _profileImageWeb = result
+                                                  .files.first.bytes ??
+                                              File("/assets/images/person.png")
+                                                  .readAsBytesSync();
+                                        } else {
+                                          _profileImage = File(
+                                              result.files.first.path ??
+                                                  "/assets/images/person.png");
+                                        }
+                                      });
+                                    }
                                   },
                                   icon: const Icon(Icons.person),
                                   label: const Text("Select an Profile Image")),
