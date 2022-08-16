@@ -288,10 +288,13 @@ class _ReportPageState extends State<ReportPage> {
                                         imageDataWeb: _imageWeb);
                                 AwesomeToaster.showToast(
                                     context: context, msg: res);
+                                Navigator.pop(context);
                                 if (res == "Success") {
                                   _isSubmitEnabled = false;
+                                  if (res == "Success") {
+                                    _isSubmitEnabled = false;
+                                  }
                                 }
-                                Navigator.pop(context);
                               } else {
                                 var res = await ReportAccident(
                                         context: context)
@@ -315,6 +318,10 @@ class _ReportPageState extends State<ReportPage> {
                                 AwesomeToaster.showToast(
                                     context: context, msg: res);
                                 Navigator.pop(context);
+
+                                if (res == "Success") {
+                                  _isSubmitEnabled = false;
+                                }
                               }
                             }
 
@@ -355,6 +362,11 @@ class _ReportPageState extends State<ReportPage> {
                               );
                             }
                           }));
+                    } else {
+                      AwesomeToaster.showLongToast(
+                          context: context,
+                          duration: const Duration(seconds: 5),
+                          msg: "You have already submitted an accident report");
                     }
                   },
                   style: ButtonStyle(

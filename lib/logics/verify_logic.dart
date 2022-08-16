@@ -75,6 +75,7 @@ class Verify {
     required String documentType,
     required String documentNumber,
     required String profession,
+    required String number,
   }) async {
     Reference ppRef = FirebaseStorage.instance.ref(
         "users/${FirebaseAuth.instance.currentUser!.uid}/documents/pp.jpg");
@@ -118,6 +119,7 @@ class Verify {
           "documentType": documentType,
           "documentNumber": documentNumber,
           "profession": profession,
+          "mobile": number,
         },
       );
     } on FirebaseException catch (error) {

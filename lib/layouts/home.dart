@@ -6,6 +6,7 @@ import 'package:emergencyalert/layouts/report.dart';
 import 'package:emergencyalert/layouts/toaster.dart';
 import 'package:emergencyalert/layouts/verify.dart';
 import 'package:emergencyalert/resources/colors.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:location/location.dart';
@@ -15,6 +16,7 @@ import 'package:url_launcher/url_launcher_string.dart';
 import '../resources/screen_sizes.dart';
 
 bool _isAccountVerified = false;
+bool _isVerificationRequestSent = false;
 
 int lifeSaved = 0;
 int caseReported = 0;
@@ -67,6 +69,21 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     locationPermission();
     getData();
+    getVerificationStates();
+  }
+
+  getVerificationStates() {
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .get()
+        .then((value) {
+      setState(() {
+        var data = value.data();
+        _isAccountVerified = data!['isAccountVerified'];
+        _isVerificationRequestSent = data['verificationRequestSent'];
+      });
+    });
   }
 
   locationPermission() async {
@@ -126,6 +143,7 @@ class _HomePageState extends State<HomePage> {
 
   void showNotVerifiedDialog() {
     showDialog(
+        barrierDismissible: false,
         context: context,
         builder: ((context) {
           return AlertDialog(
@@ -154,6 +172,65 @@ class _HomePageState extends State<HomePage> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const Text("Please verify your account to use this feature"),
+                const SizedBox(
+                  height: 10,
+                ),
+                Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    const Text(
+                      "Questions?",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const Text(" Contact us at: "),
+                    TextButton(
+                        onPressed: () {
+                          launchUrlString("mailto:me@apilpoudel.com.np",
+                              mode: LaunchMode.externalApplication);
+                        },
+                        child: const Text("me@apilpoudel.com.np"))
+                  ],
+                ),
+              ],
+            ),
+            title: const Text("Account Not Verified"),
+          );
+        }));
+  }
+
+  void showVerificationInProcessDialog() {
+    showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: ((context) {
+          return AlertDialog(
+            actions: [
+              TextButton(
+                child: const Text("OKAY"),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              )
+            ],
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text("We have received your request"),
+                const SizedBox(
+                  height: 10,
+                ),
+                const Text(
+                  "Please, Provide us at least two business days to verify  your account\n",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      fontFamily: "adventPro",
+                      color: Colors.blue,
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
                 Wrap(
                   crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
@@ -283,6 +360,8 @@ class _HomePageState extends State<HomePage> {
                                           MaterialPageRoute(builder: (context) {
                                         return const ReportPage();
                                       }));
+                                    } else if (_isVerificationRequestSent) {
+                                      showVerificationInProcessDialog();
                                     } else {
                                       showNotVerifiedDialog();
                                     }
@@ -294,6 +373,8 @@ class _HomePageState extends State<HomePage> {
                                           msg: "Not Yet Implemented");
                                       // Navigator.push(context, MaterialPageRoute(
                                       //     builder: (context) => TrackCasePage()));
+                                    } else if (_isVerificationRequestSent) {
+                                      showVerificationInProcessDialog();
                                     } else {
                                       showNotVerifiedDialog();
                                     }

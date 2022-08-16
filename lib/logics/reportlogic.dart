@@ -88,7 +88,10 @@ class ReportAccident {
             "big_picture": imageUrl,
             "large_icon": imageUrl,
             "headings": {"en": "ALERT"},
-            "contents": {"en": "New case alert of ${accidentType.toString()} "}
+            "contents": {
+              "en":
+                  "NEW CASE ALERT OF ${accidentType.toString()} HAS BEEN REPORTED. TAP TO VIEW THE DETAILS",
+            },
           }),
         );
       } else {
@@ -102,10 +105,13 @@ class ReportAccident {
             "app_id": "90c58bbe-a1b6-466e-b0e1-1b3b79563bea",
             "included_segments": ["Subscribed Users"],
             "data": {"foo": "bar"},
-            "big_picture": imageFileAndroid!.path,
-            "large_icon": "https://i.im.ge/2022/08/15/OFwcd4.xxx047-512.webp",
+            "big_picture": imageUrl,
+            "large_icon": imageUrl,
             "headings": {"en": "ALERT"},
-            "contents": {"en": "New case alert of ${accidentType.toString()} "}
+            "contents": {
+              "en":
+                  "NEW CASE ALERT OF ${accidentType.toString()} HAS BEEN REPORTED. TAP TO VIEW THE DETAILS"
+            }
           }),
         );
       }

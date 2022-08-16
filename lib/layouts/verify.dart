@@ -9,6 +9,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 bool _isUploadingEnabled = true;
 
@@ -23,6 +24,7 @@ File? _documentBackMobile;
 TextEditingController _documentTypeController = TextEditingController();
 TextEditingController _documentNumberController = TextEditingController();
 TextEditingController _proffessionController = TextEditingController();
+TextEditingController _mobileNumberController = TextEditingController();
 
 class VerifyIdentityPage extends StatefulWidget {
   const VerifyIdentityPage({super.key});
@@ -274,6 +276,21 @@ class _VerifyIdentityPageState extends State<VerifyIdentityPage> {
                           _isUploadingEnabled = true;
                         },
                       ),
+                      const SizedBox(height: 10),
+                      TextField(
+                        controller: _mobileNumberController,
+                        textInputAction: TextInputAction.next,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                        ],
+                        decoration: const InputDecoration(
+                          labelText: "Your Mobile Number",
+                          border: OutlineInputBorder(),
+                        ),
+                        onChanged: (value) {
+                          _isUploadingEnabled = true;
+                        },
+                      ),
                     ],
                   ),
                 ),
@@ -327,7 +344,9 @@ class _VerifyIdentityPageState extends State<VerifyIdentityPage> {
                                             documentNumber:
                                                 _documentNumberController.text,
                                             profession:
-                                                _proffessionController.text)
+                                                _proffessionController.text,
+                                            number:
+                                                _mobileNumberController.text)
                                         .then((value) async {
                                       FirebaseFirestore.instance
                                           .doc(
