@@ -13,6 +13,8 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import 'verify_email.dart';
+
 TextEditingController _emailPhone = TextEditingController();
 TextEditingController _fullName = TextEditingController();
 TextEditingController _password = TextEditingController();
@@ -73,8 +75,13 @@ class _SignupPageState extends State<SignupPage> {
               .doc("users/${FirebaseAuth.instance.currentUser!.uid}")
               .update({"profilePhoto": "null"});
         }
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => const HomePage()));
+        if (FirebaseAuth.instance.currentUser!.emailVerified == true) {
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => const HomePage()));
+        } else {
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => const VerifyEmail()));
+        }
       } else {}
     }
 

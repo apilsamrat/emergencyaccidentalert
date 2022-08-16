@@ -6,6 +6,7 @@ import 'package:emergencyalert/logics/filepicker.dart';
 import 'package:emergencyalert/logics/send_email.dart';
 import 'package:emergencyalert/logics/verify_logic.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -305,33 +306,54 @@ class _VerifyIdentityPageState extends State<VerifyIdentityPage> {
                           );
                         } else {
                           if (_isUploadingEnabled) {
-                            _isUploadingEnabled = false;
                             AwesomeToaster.showToast(
                                 context: context,
                                 msg: "Uploading Please Wait....");
-                            Verify(context)
-                                .applyForVerifyWeb(
-                                    ppSize: _ppSizePhotoWeb!,
-                                    front: _documentFrontWeb!,
-                                    back: _documentBackWeb!,
-                                    documentType: _documentTypeController.text,
-                                    documentNumber:
-                                        _documentNumberController.text,
-                                    profession: _proffessionController.text)
-                                .then((value) {
-                              FirebaseFirestore.instance
-                                  .doc(
-                                      "users/${FirebaseAuth.instance.currentUser!.uid}/")
-                                  .update({
-                                "verificationRequestSent": true,
-                              });
-                              SendEmail(userName: userName, message: message)
-                                  .forVerification();
-                              AwesomeToaster.showToast(
-                                  context: context,
-                                  msg:
-                                      "Please Wait While We Verify Your Document");
-                            });
+                            showDialog(
+                                context: context,
+                                useRootNavigator: false,
+                                barrierDismissible: false,
+                                builder: ((context) {
+                                  _isUploadingEnabled = false;
+
+                                  Future<void> proceed() async {
+                                    await Verify(context)
+                                        .applyForVerifyWeb(
+                                            ppSize: _ppSizePhotoWeb!,
+                                            front: _documentFrontWeb!,
+                                            back: _documentBackWeb!,
+                                            documentType:
+                                                _documentTypeController.text,
+                                            documentNumber:
+                                                _documentNumberController.text,
+                                            profession:
+                                                _proffessionController.text)
+                                        .then((value) async {
+                                      FirebaseFirestore.instance
+                                          .doc(
+                                              "users/${FirebaseAuth.instance.currentUser!.uid}/")
+                                          .update({
+                                        "verificationRequestSent": true,
+                                      });
+                                      await SendEmail(
+                                              userName: userName,
+                                              message: message)
+                                          .forVerification();
+                                      Navigator.pop(context);
+                                      AwesomeToaster.showLongToast(
+                                          context: context,
+                                          duration: const Duration(seconds: 8),
+                                          msg:
+                                              "Please Wait For About 2 Business Days While We Verify Your Document");
+                                    });
+                                  }
+
+                                  proceed();
+                                  return const AlertDialog(
+                                    title: Text("Uploading"),
+                                    content: CupertinoActivityIndicator(),
+                                  );
+                                }));
                           }
                         }
                       } else {
@@ -343,46 +365,69 @@ class _VerifyIdentityPageState extends State<VerifyIdentityPage> {
                             _documentTypeController.text == "") {
                           showDialog(
                             context: context,
-                            builder: (context) => AlertDialog(
-                              title: const Text("Error"),
-                              content: const Text("Please Fill All Fields"),
-                              actions: [
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: const Text("OKAY"),
-                                ),
-                              ],
-                            ),
+                            builder: (context) {
+                              return AlertDialog(
+                                title: const Text("Error"),
+                                content: const Text("Please Fill All Fields"),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: const Text("OKAY"),
+                                  ),
+                                ],
+                              );
+                            },
                           );
                         } else {
                           if (_isUploadingEnabled) {
-                            _isUploadingEnabled = false;
                             AwesomeToaster.showToast(
                                 context: context,
                                 msg: "Uploading Please Wait....");
-                            Verify(context)
-                                .applyForVerifyMobile(
-                                    ppSize: _ppSizePhotoMobile!,
-                                    front: _documentFrontMobile!,
-                                    back: _documentBackMobile!,
-                                    documentType: _documentTypeController.text,
-                                    documentNumber:
-                                        _documentNumberController.text,
-                                    profession: _proffessionController.text)
-                                .then((value) {
-                              FirebaseFirestore.instance
-                                  .doc(
-                                      "users/${FirebaseAuth.instance.currentUser!.uid}/")
-                                  .update({
-                                "verificationRequestSent": true,
-                              });
-                              AwesomeToaster.showToast(
-                                  context: context,
-                                  msg:
-                                      "Please Wait While We Verify Your Document");
-                            });
+                            showDialog(
+                                useRootNavigator: false,
+                                barrierDismissible: false,
+                                context: context,
+                                builder: (context) {
+                                  Future<void> proceed() async {
+                                    _isUploadingEnabled = false;
+                                    await Verify(context)
+                                        .applyForVerifyMobile(
+                                            ppSize: _ppSizePhotoMobile!,
+                                            front: _documentFrontMobile!,
+                                            back: _documentBackMobile!,
+                                            documentType:
+                                                _documentTypeController.text,
+                                            documentNumber:
+                                                _documentNumberController.text,
+                                            profession:
+                                                _proffessionController.text)
+                                        .then((value) async {
+                                      FirebaseFirestore.instance
+                                          .doc(
+                                              "users/${FirebaseAuth.instance.currentUser!.uid}/")
+                                          .update({
+                                        "verificationRequestSent": true,
+                                      });
+                                      await SendEmail(
+                                              userName: userName,
+                                              message: message)
+                                          .forVerification();
+                                      Navigator.pop(context);
+                                      AwesomeToaster.showLongToast(
+                                          context: context,
+                                          duration: const Duration(seconds: 8),
+                                          msg:
+                                              "Please Wait About 2 Business Days While We Verify Your Document");
+                                    });
+                                  }
+
+                                  proceed();
+                                  return const AlertDialog(
+                                    content: CupertinoActivityIndicator(),
+                                  );
+                                });
                           }
                         }
                       }

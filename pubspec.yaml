@@ -50,6 +50,7 @@ dependencies:
   url_launcher: ^6.1.5
   http: ^0.13.5
   onesignal_flutter: ^3.4.1
+  animated_flip_counter: ^0.2.5
 
 dev_dependencies:
   flutter_test:

@@ -2,6 +2,7 @@
 import 'package:emergencyalert/layouts/home.dart';
 import 'package:emergencyalert/layouts/login.dart';
 import 'package:emergencyalert/layouts/toaster.dart';
+import 'package:emergencyalert/layouts/verify_email.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -37,10 +38,17 @@ class AuthUser {
         prefs?.setString("email", _email);
         prefs?.setString("password", _password);
         prefs?.setBool("isLoggedinBefore", true);
-        Navigator.pushAndRemoveUntil(
-            _context,
-            MaterialPageRoute(builder: (context) => const HomePage()),
-            (route) => false);
+        if (userCred!.user!.emailVerified == true) {
+          Navigator.pushAndRemoveUntil(
+              _context,
+              MaterialPageRoute(builder: (context) => const HomePage()),
+              (route) => false);
+        } else {
+          Navigator.pushAndRemoveUntil(
+              _context,
+              MaterialPageRoute(builder: (context) => const VerifyEmail()),
+              (route) => false);
+        }
       } else {
         Navigator.pushAndRemoveUntil(
             _context,
@@ -69,28 +77,29 @@ class AuthUser {
       await ref
           .createUserWithEmailAndPassword(email: _email, password: _password)
           .then((value) {
-            firestoreRef.doc("users/${value.user!.uid}").set({
-              "uid": value.user!.uid,
-              "email": _email,
-              "fullName": fullName,
-              "pswd": pswd,
-              "isAccountVerified": false,
-            });
-          })
-          .then((value) => ref.signInWithEmailAndPassword(
-              email: _email, password: _password))
-          .then((value) async {
-            FirebaseAuth.instance.currentUser!.updateDisplayName(fullName);
-            FirebaseAuth.instance.currentUser!.updateEmail(_email);
-            if (value.user != null) {
-              prefs = await SharedPreferences.getInstance();
-              prefs?.setString("email", _email);
-              prefs?.setString("password", _password);
-              prefs?.setBool("isLoggedinBefore", true);
-            }
-            AwesomeToaster.showToast(
-                context: _context, msg: "Account created successfully");
-          });
+        firestoreRef.doc("users/${value.user!.uid}").set({
+          "uid": value.user!.uid,
+          "email": _email,
+          "fullName": fullName,
+          "pswd": pswd,
+          "isAccountVerified": false,
+        });
+      }).then((value) async {
+        return await ref.signInWithEmailAndPassword(
+            email: _email, password: _password);
+      }).then((value) async {
+        FirebaseAuth.instance.currentUser!.updateDisplayName(fullName);
+        FirebaseAuth.instance.currentUser!.updateEmail(_email);
+
+        if (value.user != null) {
+          prefs = await SharedPreferences.getInstance();
+          prefs?.setString("email", _email);
+          prefs?.setString("password", _password);
+          prefs?.setBool("isLoggedinBefore", true);
+        }
+        AwesomeToaster.showToast(
+            context: _context, msg: "Account created successfully");
+      });
     } on FirebaseAuthException catch (error) {
       resultCreateUser = error.message.toString();
     }

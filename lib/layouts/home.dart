@@ -1,23 +1,29 @@
+import 'package:animated_flip_counter/animated_flip_counter.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:emergencyalert/layouts/drawer.dart';
 import 'package:emergencyalert/layouts/profile.dart';
 import 'package:emergencyalert/layouts/report.dart';
 import 'package:emergencyalert/layouts/toaster.dart';
+import 'package:emergencyalert/layouts/verify.dart';
 import 'package:emergencyalert/resources/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:location/location.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 import '../resources/screen_sizes.dart';
 
-int lifeSaved = 547;
-int caseReported = 5620;
+bool _isAccountVerified = false;
+
+int lifeSaved = 0;
+int caseReported = 0;
 
 PermissionStatus _isLocationPermissionGranted = PermissionStatus.denied;
 
 List<String> dashboardItems = [
   "Report a Case",
-  "Track Reported Case",
+  "Track My Reports",
   "My Profile",
   "Help",
 ];
@@ -60,6 +66,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     locationPermission();
+    getData();
   }
 
   locationPermission() async {
@@ -104,6 +111,72 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  getData() async {
+    FirebaseFirestore.instance.collection("reports").get().then((value) {
+      setState(() {
+        caseReported = value.docs.length;
+      });
+    });
+    FirebaseFirestore.instance.collection("savedReports").get().then((value) {
+      setState(() {
+        lifeSaved = value.docs.length;
+      });
+    });
+  }
+
+  void showNotVerifiedDialog() {
+    showDialog(
+        context: context,
+        builder: ((context) {
+          return AlertDialog(
+            actions: [
+              TextButton(
+                child: Text(
+                  "VERIFY NOW",
+                  style: TextStyle(color: blue),
+                ),
+                onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const VerifyIdentityPage()));
+                },
+              ),
+              TextButton(
+                child: const Text("OKAY"),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              )
+            ],
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text("Please verify your account to use this feature"),
+                Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    const Text(
+                      "Questions?",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const Text(" Contact us at: "),
+                    TextButton(
+                        onPressed: () {
+                          launchUrlString("mailto:me@apilpoudel.com.np",
+                              mode: LaunchMode.externalApplication);
+                        },
+                        child: const Text("me@apilpoudel.com.np"))
+                  ],
+                ),
+              ],
+            ),
+            title: const Text("Account Not Verified"),
+          );
+        }));
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -138,11 +211,13 @@ class _HomePageState extends State<HomePage> {
                                 child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Text(lifeSaved.toString(),
-                                          style: TextStyle(
+                                      AnimatedFlipCounter(
+                                          duration: const Duration(seconds: 2),
+                                          value: lifeSaved,
+                                          textStyle: TextStyle(
                                               fontFamily: "vt323",
-                                              color: lightRed,
                                               fontSize: 30,
+                                              color: lightRed,
                                               fontWeight: FontWeight.bold)),
                                       Text("Lives Saved",
                                           style: TextStyle(
@@ -163,8 +238,10 @@ class _HomePageState extends State<HomePage> {
                                 child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Text(caseReported.toString(),
-                                          style: TextStyle(
+                                      AnimatedFlipCounter(
+                                          duration: const Duration(seconds: 2),
+                                          value: caseReported,
+                                          textStyle: TextStyle(
                                               fontFamily: "vt323",
                                               fontSize: 30,
                                               color: lightRed,
@@ -182,7 +259,7 @@ class _HomePageState extends State<HomePage> {
                       ],
                     ),
                     const SizedBox(
-                      height: 20,
+                      height: 30,
                     ),
                     Expanded(
                       child: Container(
@@ -201,17 +278,26 @@ class _HomePageState extends State<HomePage> {
                               onPressed: () {
                                 switch (index) {
                                   case 0:
-                                    Navigator.push(context,
-                                        MaterialPageRoute(builder: (context) {
-                                      return const ReportPage();
-                                    }));
+                                    if (_isAccountVerified) {
+                                      Navigator.push(context,
+                                          MaterialPageRoute(builder: (context) {
+                                        return const ReportPage();
+                                      }));
+                                    } else {
+                                      showNotVerifiedDialog();
+                                    }
                                     break;
                                   case 1:
-                                    AwesomeToaster.showToast(
-                                        context: context,
-                                        msg: "Not Yet Implemented");
-                                    // Navigator.push(context, MaterialPageRoute(
-                                    //     builder: (context) => TrackCasePage()));
+                                    if (_isAccountVerified) {
+                                      AwesomeToaster.showToast(
+                                          context: context,
+                                          msg: "Not Yet Implemented");
+                                      // Navigator.push(context, MaterialPageRoute(
+                                      //     builder: (context) => TrackCasePage()));
+                                    } else {
+                                      showNotVerifiedDialog();
+                                    }
+
                                     break;
                                   case 2:
                                     Navigator.push(
@@ -232,6 +318,7 @@ class _HomePageState extends State<HomePage> {
                               child: Container(
                                 height: double.infinity,
                                 width: double.infinity,
+                                alignment: Alignment.center,
                                 decoration: BoxDecoration(
                                   borderRadius: const BorderRadius.all(
                                       Radius.circular(10)),
@@ -243,6 +330,7 @@ class _HomePageState extends State<HomePage> {
                                 ),
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Icon(
@@ -250,12 +338,15 @@ class _HomePageState extends State<HomePage> {
                                       color: Colors.white,
                                       size: 30,
                                     ),
-                                    Text(
-                                      dashboardItems[index],
-                                      style: const TextStyle(
-                                        fontFamily: "vt323",
-                                        color: Colors.white,
-                                        fontSize: 25,
+                                    Center(
+                                      child: Text(
+                                        textAlign: TextAlign.center,
+                                        dashboardItems[index],
+                                        style: const TextStyle(
+                                          fontFamily: "vt323",
+                                          color: Colors.white,
+                                          fontSize: 25,
+                                        ),
                                       ),
                                     ),
                                   ],

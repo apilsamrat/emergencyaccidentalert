@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:emergencyalert/layouts/toaster.dart';
 import 'package:emergencyalert/logics/reportlogic.dart';
+import 'package:emergencyalert/resources/colors.dart';
 import 'package:emergencyalert/resources/datetime_picker.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
@@ -16,6 +17,8 @@ import '../resources/screen_sizes.dart';
 File? _imageAndroid;
 Uint8List? _imageWeb;
 
+bool _isSubmitEnabled = true;
+
 class ReportPage extends StatefulWidget {
   const ReportPage({super.key});
 
@@ -23,17 +26,15 @@ class ReportPage extends StatefulWidget {
   State<ReportPage> createState() => _ReportPageState();
 }
 
-String? _selected;
+String? _selectedAccidentSeverity;
 
 TextEditingController _dateTimeTextEditingController = TextEditingController();
 TextEditingController _locationTextEditingController = TextEditingController();
-TextEditingController _accidentSeverityTextEditingController =
-    TextEditingController();
 TextEditingController _accidentTypeTextEditingController =
     TextEditingController();
 TextEditingController _accidentCauseTextEditingController =
     TextEditingController();
-TextEditingController _accidentDescriptionTextEditingController =
+TextEditingController _noOfPeopleInvolvedTextEditingController =
     TextEditingController();
 
 class _ReportPageState extends State<ReportPage> {
@@ -99,7 +100,7 @@ class _ReportPageState extends State<ReportPage> {
                   isExpanded: true,
                   enableFeedback: true,
                   hint: const Text("Select Severity of Accident"),
-                  value: _selected,
+                  value: _selectedAccidentSeverity,
                   items: const [
                     DropdownMenuItem(
                       value: "null",
@@ -128,7 +129,7 @@ class _ReportPageState extends State<ReportPage> {
                   ],
                   onChanged: (value) {
                     setState(() {
-                      _selected = value.toString();
+                      _selectedAccidentSeverity = value.toString();
                     });
                     FocusScope.of(context).unfocus();
                   },
@@ -206,39 +207,23 @@ class _ReportPageState extends State<ReportPage> {
                 ),
                 const SizedBox(height: 10),
                 TextField(
-                  controller: _accidentDescriptionTextEditingController,
+                  controller: _accidentCauseTextEditingController,
                   maxLines: null,
                   keyboardType: TextInputType.multiline,
                   decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: "Accident Description",
-                  ),
-                ),
-                const SizedBox(height: 10),
-                const TextField(
-                  maxLines: null,
-                  keyboardType: TextInputType.multiline,
-                  decoration: InputDecoration(
                     border: OutlineInputBorder(),
                     labelText: "Accident Cause",
                   ),
                 ),
                 const SizedBox(height: 10),
-                const TextField(
+                TextField(
+                  controller: _noOfPeopleInvolvedTextEditingController,
                   maxLines: null,
-                  keyboardType: TextInputType.multiline,
-                  decoration: InputDecoration(
+                  textInputAction: TextInputAction.next,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
                     border: OutlineInputBorder(),
-                    labelText: "Please provide any other details",
-                  ),
-                ),
-                const SizedBox(height: 10),
-                const TextField(
-                  maxLines: null,
-                  keyboardType: TextInputType.multiline,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: "Your Phone Number",
+                    labelText: "No of People Involved",
                   ),
                 ),
                 const SizedBox(height: 10),
@@ -275,64 +260,102 @@ class _ReportPageState extends State<ReportPage> {
                 ),
                 TextButton(
                   onPressed: () async {
-                    showDialog(
-                        barrierDismissible: false,
-                        context: context,
-                        builder: ((context) {
-                          void subNshow() async {
-                            if (kIsWeb) {
-                              var res = await ReportAccident(context: context)
-                                  .submit(
-                                      accidentSeverity: _selected.toString(),
-                                      accidentType:
-                                          _accidentTypeTextEditingController
-                                              .text,
-                                      accidentLocation:
-                                          _locationTextEditingController.text,
-                                      accidentDescription:
-                                          _accidentDescriptionTextEditingController
-                                              .text,
-                                      accidentDateandTime:
-                                          _dateTimeTextEditingController.text,
-                                      accidentCause:
-                                          _accidentCauseTextEditingController
-                                              .text,
-                                      imageDataWeb: _imageWeb);
-                              AwesomeToaster.showToast(
-                                  context: context, msg: res);
-                              Navigator.pop(context);
-                            } else {
-                              var res = await ReportAccident(context: context)
-                                  .submit(
-                                      accidentSeverity:
-                                          _accidentSeverityTextEditingController
-                                              .text,
-                                      accidentType:
-                                          _accidentTypeTextEditingController
-                                              .text,
-                                      accidentLocation:
-                                          _locationTextEditingController.text,
-                                      accidentDescription:
-                                          _accidentDescriptionTextEditingController
-                                              .text,
-                                      accidentDateandTime:
-                                          _dateTimeTextEditingController.text,
-                                      accidentCause:
-                                          _accidentCauseTextEditingController
-                                              .text,
-                                      imageFileAndroid: _imageAndroid);
-                              AwesomeToaster.showToast(
-                                  context: context, msg: res);
-                              Navigator.pop(context);
+                    if (_isSubmitEnabled) {
+                      showDialog(
+                          barrierDismissible: false,
+                          context: context,
+                          builder: ((context) {
+                            void subNshow() async {
+                              if (kIsWeb) {
+                                var res = await ReportAccident(
+                                        context: context)
+                                    .submit(
+                                        accidentLocation:
+                                            _locationTextEditingController.text,
+                                        accidentDateandTime:
+                                            _dateTimeTextEditingController.text,
+                                        accidentSeverity:
+                                            _selectedAccidentSeverity!,
+                                        accidentType:
+                                            _accidentTypeTextEditingController
+                                                .text,
+                                        noOfInjured:
+                                            _noOfPeopleInvolvedTextEditingController
+                                                .text,
+                                        accidentCause:
+                                            _accidentCauseTextEditingController
+                                                .text,
+                                        imageDataWeb: _imageWeb);
+                                AwesomeToaster.showToast(
+                                    context: context, msg: res);
+                                if (res == "Success") {
+                                  _isSubmitEnabled = false;
+                                }
+                                Navigator.pop(context);
+                              } else {
+                                var res = await ReportAccident(
+                                        context: context)
+                                    .submit(
+                                        accidentLocation:
+                                            _locationTextEditingController.text,
+                                        accidentDateandTime:
+                                            _dateTimeTextEditingController.text,
+                                        accidentSeverity:
+                                            _selectedAccidentSeverity!,
+                                        accidentType:
+                                            _accidentTypeTextEditingController
+                                                .text,
+                                        noOfInjured:
+                                            _noOfPeopleInvolvedTextEditingController
+                                                .text,
+                                        accidentCause:
+                                            _accidentCauseTextEditingController
+                                                .text,
+                                        imageFileAndroid: _imageAndroid);
+                                AwesomeToaster.showToast(
+                                    context: context, msg: res);
+                                Navigator.pop(context);
+                              }
                             }
-                          }
 
-                          subNshow();
-                          return const AlertDialog(
-                            title: Text("Please wait...."),
-                            content: CupertinoActivityIndicator(),
-                          );
-                        }));
+                            if (_locationTextEditingController.text.isEmpty ||
+                                _dateTimeTextEditingController.text.isEmpty ||
+                                _accidentTypeTextEditingController
+                                    .text.isEmpty ||
+                                _noOfPeopleInvolvedTextEditingController
+                                    .text.isEmpty ||
+                                _accidentCauseTextEditingController
+                                    .text.isEmpty ||
+                                _selectedAccidentSeverity == null ||
+                                (_imageAndroid == null && _imageWeb == null)) {
+                              return AlertDialog(
+                                title: Text("Error",
+                                    style: TextStyle(
+                                        fontFamily: "vt323", color: red)),
+                                content: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: const [
+                                    Text("Please fill all fields"),
+                                  ],
+                                ),
+                                actions: [
+                                  TextButton(
+                                    child: const Text("OKAY"),
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                  ),
+                                ],
+                              );
+                            } else {
+                              subNshow();
+                              return const AlertDialog(
+                                title: Text("Please wait...."),
+                                content: CupertinoActivityIndicator(),
+                              );
+                            }
+                          }));
+                    }
                   },
                   style: ButtonStyle(
                       minimumSize:

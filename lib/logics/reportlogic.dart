@@ -24,11 +24,11 @@ class ReportAccident {
   ReportAccident({required this.context});
 
   Future<String> submit({
+    required String accidentLocation,
+    required String accidentDateandTime,
     required String accidentSeverity,
     required String accidentType,
-    required String accidentLocation,
-    required String accidentDescription,
-    required String accidentDateandTime,
+    required String noOfInjured,
     required String accidentCause,
     File? imageFileAndroid,
     Uint8List? imageDataWeb,
@@ -46,8 +46,8 @@ class ReportAccident {
       "accidentSeverity": accidentSeverity,
       "accidentType": accidentType,
       "accidentLocation": accidentLocation,
-      "accidentDescription": accidentDescription,
-      "accidentDateandTime": accidentDateandTime,
+      "noOfInjured": noOfInjured,
+      "accidentDateandTime": DateTime.parse(accidentDateandTime),
       "accidentCause": accidentCause,
       "userId": FirebaseAuth.instance.currentUser!.uid,
     }).then((value) async {
