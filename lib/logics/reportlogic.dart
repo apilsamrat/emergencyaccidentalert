@@ -28,8 +28,6 @@ class ReportAccident {
     required String accidentDateandTime,
     required String accidentSeverity,
     required String accidentType,
-    required String noOfInjured,
-    required String accidentCause,
     File? imageFileAndroid,
     Uint8List? imageDataWeb,
   }) async {
@@ -46,9 +44,7 @@ class ReportAccident {
       "accidentSeverity": accidentSeverity,
       "accidentType": accidentType,
       "accidentLocation": accidentLocation,
-      "noOfInjured": noOfInjured,
       "accidentDateandTime": DateTime.parse(accidentDateandTime),
-      "accidentCause": accidentCause,
       "userId": FirebaseAuth.instance.currentUser!.uid,
     }).then((value) async {
       arrayReportsYet.add(value.id);
@@ -74,47 +70,26 @@ class ReportAccident {
           .update({
         "arrayReportsYet": arrayReportsYet,
       });
-      if (kIsWeb) {
-        await http.post(
-          Uri.parse('https://onesignal.com/api/v1/notifications'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-            "Authorization": "Basic $oneSignalapiKey",
-          },
-          body: jsonEncode({
-            "app_id": "90c58bbe-a1b6-466e-b0e1-1b3b79563bea",
-            "included_segments": ["Subscribed Users"],
-            "data": {"foo": "bar"},
-            "big_picture": imageUrl,
-            "large_icon": imageUrl,
-            "headings": {"en": "ALERT"},
-            "contents": {
-              "en":
-                  "NEW CASE ALERT OF ${accidentType.toString()} HAS BEEN REPORTED. TAP TO VIEW THE DETAILS",
-            },
-          }),
-        );
-      } else {
-        await http.post(
-          Uri.parse('https://onesignal.com/api/v1/notifications'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-            "Authorization": "Basic $oneSignalapiKey",
-          },
-          body: jsonEncode({
-            "app_id": "90c58bbe-a1b6-466e-b0e1-1b3b79563bea",
-            "included_segments": ["Subscribed Users"],
-            "data": {"foo": "bar"},
-            "big_picture": imageUrl,
-            "large_icon": imageUrl,
-            "headings": {"en": "ALERT"},
-            "contents": {
-              "en":
-                  "NEW CASE ALERT OF ${accidentType.toString()} HAS BEEN REPORTED. TAP TO VIEW THE DETAILS"
-            }
-          }),
-        );
-      }
+
+      await http.post(
+        Uri.parse('https://onesignal.com/api/v1/notifications'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          "Authorization": "Basic $oneSignalapiKey",
+        },
+        body: jsonEncode({
+          "app_id": "90c58bbe-a1b6-466e-b0e1-1b3b79563bea",
+          "included_segments": ["Subscribed Users"],
+          "data": {"foo": "bar"},
+          "big_picture": imageUrl,
+          "large_icon": imageUrl,
+          "headings": {"en": "ALERT"},
+          "contents": {
+            "en":
+                "NEW CASE ALERT OF ${accidentType.toString()} HAS BEEN REPORTED. TAP TO VIEW THE DETAILS"
+          }
+        }),
+      );
     });
     return finalresult;
   } //submit

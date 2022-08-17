@@ -32,10 +32,10 @@ TextEditingController _dateTimeTextEditingController = TextEditingController();
 TextEditingController _locationTextEditingController = TextEditingController();
 TextEditingController _accidentTypeTextEditingController =
     TextEditingController();
-TextEditingController _accidentCauseTextEditingController =
-    TextEditingController();
-TextEditingController _noOfPeopleInvolvedTextEditingController =
-    TextEditingController();
+// TextEditingController _accidentCauseTextEditingController =
+//     TextEditingController();
+// TextEditingController _noOfPeopleInvolvedTextEditingController =
+//     TextEditingController();
 
 class _ReportPageState extends State<ReportPage> {
   void getLocation() async {
@@ -46,9 +46,14 @@ class _ReportPageState extends State<ReportPage> {
     });
   }
 
+  @override
+  void initState() {
+    super.initState();
+    _dateTimeTextEditingController.text = DateTime.now().toString();
+  }
+
   locationService() async {
     await showDialog(
-        // barrierDismissible: false,
         context: context,
         builder: ((context) {
           getLocation();
@@ -77,13 +82,16 @@ class _ReportPageState extends State<ReportPage> {
       appBar: AppBar(
         title: const Text("Reporting Accident"),
       ),
-      body: Center(
-        child: SingleChildScrollView(
-          child: Container(
-            width: CreatedSystem(context: context).getIsScreeenWidthBig()
-                ? CreatedSystem(context: context).getPreciseWidth()
-                : CreatedSystem(context: context).getScreenWidth(),
-            padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+      body: SingleChildScrollView(
+        child: Container(
+          width: CreatedSystem(context: context).getIsScreeenWidthBig()
+              ? CreatedSystem(context: context).getPreciseWidth()
+              : CreatedSystem(context: context).getScreenWidth(),
+          padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+          child: GestureDetector(
+            onTap: () {
+              FocusScope.of(context).requestFocus(FocusNode());
+            },
             child: Column(
               children: [
                 const Text("Report Accident"),
@@ -206,27 +214,27 @@ class _ReportPageState extends State<ReportPage> {
                   ),
                 ),
                 const SizedBox(height: 10),
-                TextField(
-                  controller: _accidentCauseTextEditingController,
-                  maxLines: null,
-                  keyboardType: TextInputType.multiline,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: "Accident Cause",
-                  ),
-                ),
-                const SizedBox(height: 10),
-                TextField(
-                  controller: _noOfPeopleInvolvedTextEditingController,
-                  maxLines: null,
-                  textInputAction: TextInputAction.next,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: "No of People Involved",
-                  ),
-                ),
-                const SizedBox(height: 10),
+                // TextField(
+                //   controller: _accidentCauseTextEditingController,
+                //   maxLines: null,
+                //   keyboardType: TextInputType.multiline,
+                //   decoration: const InputDecoration(
+                //     border: OutlineInputBorder(),
+                //     labelText: "Accident Cause",
+                //   ),
+                // ),
+                // const SizedBox(height: 10),
+                // TextField(
+                //   controller: _noOfPeopleInvolvedTextEditingController,
+                //   maxLines: null,
+                //   textInputAction: TextInputAction.next,
+                //   keyboardType: TextInputType.number,
+                //   decoration: const InputDecoration(
+                //     border: OutlineInputBorder(),
+                //     labelText: "No of People Involved",
+                //   ),
+                // ),
+                // const SizedBox(height: 10),
                 kIsWeb
                     ? _imageWeb == null
                         ? const SizedBox(height: 10)
@@ -267,8 +275,7 @@ class _ReportPageState extends State<ReportPage> {
                           builder: ((context) {
                             void subNshow() async {
                               if (kIsWeb) {
-                                var res = await ReportAccident(
-                                        context: context)
+                                var res = await ReportAccident(context: context)
                                     .submit(
                                         accidentLocation:
                                             _locationTextEditingController.text,
@@ -278,12 +285,6 @@ class _ReportPageState extends State<ReportPage> {
                                             _selectedAccidentSeverity!,
                                         accidentType:
                                             _accidentTypeTextEditingController
-                                                .text,
-                                        noOfInjured:
-                                            _noOfPeopleInvolvedTextEditingController
-                                                .text,
-                                        accidentCause:
-                                            _accidentCauseTextEditingController
                                                 .text,
                                         imageDataWeb: _imageWeb);
                                 AwesomeToaster.showToast(
@@ -296,8 +297,7 @@ class _ReportPageState extends State<ReportPage> {
                                   }
                                 }
                               } else {
-                                var res = await ReportAccident(
-                                        context: context)
+                                var res = await ReportAccident(context: context)
                                     .submit(
                                         accidentLocation:
                                             _locationTextEditingController.text,
@@ -307,12 +307,6 @@ class _ReportPageState extends State<ReportPage> {
                                             _selectedAccidentSeverity!,
                                         accidentType:
                                             _accidentTypeTextEditingController
-                                                .text,
-                                        noOfInjured:
-                                            _noOfPeopleInvolvedTextEditingController
-                                                .text,
-                                        accidentCause:
-                                            _accidentCauseTextEditingController
                                                 .text,
                                         imageFileAndroid: _imageAndroid);
                                 AwesomeToaster.showToast(
@@ -328,10 +322,6 @@ class _ReportPageState extends State<ReportPage> {
                             if (_locationTextEditingController.text.isEmpty ||
                                 _dateTimeTextEditingController.text.isEmpty ||
                                 _accidentTypeTextEditingController
-                                    .text.isEmpty ||
-                                _noOfPeopleInvolvedTextEditingController
-                                    .text.isEmpty ||
-                                _accidentCauseTextEditingController
                                     .text.isEmpty ||
                                 _selectedAccidentSeverity == null ||
                                 (_imageAndroid == null && _imageWeb == null)) {

@@ -31,10 +31,7 @@ Future<void> main() async {
       theme: ThemeData(
           appBarTheme: const AppBarTheme(
               titleTextStyle: TextStyle(
-                  fontFamily: "adventPro",
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white)),
+                  fontFamily: "vt323", fontSize: 20, color: Colors.white)),
           colorScheme: ColorScheme(
               brightness: brightness,
               primary: darkRed,
