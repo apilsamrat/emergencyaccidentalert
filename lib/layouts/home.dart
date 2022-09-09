@@ -345,7 +345,7 @@ class _HomePageState extends State<HomePage> {
                                                 context,
                                                 MaterialPageRoute(
                                                     builder: ((context) =>
-                                                        const TrackReportPage())));
+                                                        const TrackReports())));
                                           } else if (_isVerificationRequestSent ==
                                               true) {
                                             showVerificationInProcessDialog();

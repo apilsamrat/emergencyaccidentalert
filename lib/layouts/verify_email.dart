@@ -124,18 +124,40 @@ class _VerifyEmailState extends State<VerifyEmail> {
                   ),
                   Visibility(
                     visible: !_isVerifyEnabled,
-                    child: TextButton(
-                      onPressed: () {},
-                      style: ButtonStyle(
-                          minimumSize: MaterialStateProperty.all(
-                              const Size(double.infinity, 60)),
-                          backgroundColor:
-                              MaterialStateProperty.all(Colors.grey)),
-                      child: const Text(
-                        "Verification Email Sent",
-                        style: TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.bold),
-                      ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        TextButton(
+                          onPressed: () {},
+                          style: ButtonStyle(
+                              minimumSize: MaterialStateProperty.all(
+                                  const Size(double.infinity, 60)),
+                              backgroundColor:
+                                  MaterialStateProperty.all(Colors.grey)),
+                          child: const Text(
+                            "Verification Email Sent",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Row(
+                          children: [
+                            const Text("Email sent at:   "),
+                            Text(
+                              FirebaseAuth.instance.currentUser!.email
+                                  .toString(),
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                        const Text(
+                          "(Please check on your spam folder too...)",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(height: 15),

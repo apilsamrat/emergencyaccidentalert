@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:emergencyalert/layouts/home.dart';
 import 'package:emergencyalert/layouts/toaster.dart';
 import 'package:emergencyalert/logics/filepicker.dart';
 import 'package:emergencyalert/logics/send_email.dart';
@@ -358,7 +359,6 @@ class _VerifyIdentityPageState extends State<VerifyIdentityPage> {
                                               userName: userName,
                                               message: message)
                                           .forVerification();
-                                      Navigator.pop(context);
                                       AwesomeToaster.showLongToast(
                                           context: context,
                                           duration: const Duration(seconds: 8),
@@ -367,7 +367,14 @@ class _VerifyIdentityPageState extends State<VerifyIdentityPage> {
                                     });
                                   }
 
-                                  proceed();
+                                  proceed().then((value) {
+                                    Navigator.of(context).pop();
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                const HomePage()));
+                                  });
                                   return const AlertDialog(
                                     title: Text("Uploading"),
                                     content: CupertinoActivityIndicator(),

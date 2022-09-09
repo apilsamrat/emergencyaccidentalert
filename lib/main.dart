@@ -32,7 +32,7 @@ Future<void> main() async {
           appBarTheme: const AppBarTheme(
               titleTextStyle: TextStyle(
                   fontFamily: "vt323", fontSize: 20, color: Colors.white)),
-          colorScheme: ColorScheme(
+          colorScheme: ColorScheme(            
               brightness: brightness,
               primary: darkRed,
               onPrimary: Colors.white,
@@ -43,7 +43,9 @@ Future<void> main() async {
               background: veryLightGrey,
               onBackground: Colors.yellow,
               surface: Colors.white,
-              onSurface: Colors.black)),
+              onSurface: Colors.black),
+              ),
+              
       debugShowCheckedModeBanner: false,
       home: const MainApp(),
     ),
