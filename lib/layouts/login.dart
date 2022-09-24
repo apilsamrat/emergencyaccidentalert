@@ -1,4 +1,3 @@
-import 'package:emergencyalert/layouts/home.dart';
 import 'package:emergencyalert/layouts/toaster.dart';
 import 'package:emergencyalert/resources/colors.dart';
 import 'package:emergencyalert/layouts/signup.dart';

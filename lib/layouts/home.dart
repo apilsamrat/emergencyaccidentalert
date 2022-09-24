@@ -9,6 +9,7 @@ import 'package:emergencyalert/layouts/verify.dart';
 import 'package:emergencyalert/resources/colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:location/location.dart';
@@ -420,52 +421,74 @@ class _HomePageState extends State<HomePage> {
                                       },
                                     ),
                                     const SizedBox(height: 10),
-                                    Row(
-                                      mainAxisSize: MainAxisSize.max,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Expanded(
-                                          child: TextButton(
-                                              onPressed: () {},
-                                              child: Container(
-                                                height: 40,
-                                                width: double.infinity,
-                                                decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      const BorderRadius.all(
-                                                          Radius.circular(10)),
-                                                  gradient: LinearGradient(
-                                                    colors: [
-                                                      startBlue,
-                                                      endBlue
-                                                    ],
-                                                    begin: Alignment.topRight,
-                                                    end: Alignment.bottomRight,
+                                    if (kIsWeb)
+                                      Row(
+                                        mainAxisSize: MainAxisSize.max,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Expanded(
+                                            child: TextButton(
+                                                onPressed: () {
+                                                  launchUrlString(
+                                                    "https://bit.ly/alertreporter",
+                                                    mode: LaunchMode
+                                                        .platformDefault,
+                                                  );
+                                                },
+                                                child: Container(
+                                                  alignment: Alignment.center,
+                                                  height: 40,
+                                                  width: double.infinity,
+                                                  decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        const BorderRadius.all(
+                                                            Radius.circular(0)),
+                                                    gradient: LinearGradient(
+                                                      colors: [
+                                                        startBlue,
+                                                        endBlue
+                                                      ],
+                                                      begin: Alignment.topRight,
+                                                      end: Alignment.bottomLeft,
+                                                    ),
                                                   ),
-                                                ),
-                                                child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.all(10),
-                                                  child: Row(
-                                                    children: const [
-                                                      Icon(Icons
-                                                          .android_rounded),
-                                                      Text(
-                                                        "Download For Android",
-                                                        style: TextStyle(
-                                                            fontFamily: "vt323",
-                                                            fontSize: 22,
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            10),
+                                                    child: Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .center,
+                                                      children: const [
+                                                        Icon(
+                                                            Icons
+                                                                .android_rounded,
                                                             color:
                                                                 Colors.white),
-                                                      ),
-                                                    ],
+                                                        SizedBox(
+                                                          width: 10,
+                                                        ),
+                                                        Text(
+                                                          "Download For Android",
+                                                          style: TextStyle(
+                                                              fontFamily:
+                                                                  "vt323",
+                                                              fontSize: 22,
+                                                              color:
+                                                                  Colors.white),
+                                                        ),
+                                                      ],
+                                                    ),
                                                   ),
-                                                ),
-                                              )),
-                                        )
-                                      ],
-                                    )
+                                                )),
+                                          )
+                                        ],
+                                      )
                                   ],
                                 ),
                               ),
