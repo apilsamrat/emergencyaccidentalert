@@ -125,31 +125,6 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                             ),
                             const SizedBox(height: 10),
-                            const Text("OR",
-                                style: TextStyle(color: Colors.grey)),
-                            TextButton.icon(
-                              icon: const Icon(
-                                Icons.facebook,
-                                color: Colors.blue,
-                              ),
-                              onPressed: () {
-                                Navigator.pushAndRemoveUntil(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: ((context) =>
-                                            const HomePage())),
-                                    (route) => false);
-                              },
-                              label: const Text(
-                                "Login with Facebook",
-                                style: TextStyle(color: Colors.blue),
-                              ),
-                              style: ButtonStyle(
-                                  minimumSize: MaterialStateProperty.all(
-                                      const Size(double.infinity, 60)),
-                                  backgroundColor: MaterialStateProperty.all(
-                                      Colors.transparent)),
-                            ),
                             TextButton(
                                 child: const Text("Forgot Password?",
                                     style: TextStyle(color: Colors.grey)),

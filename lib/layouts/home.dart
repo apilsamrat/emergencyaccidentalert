@@ -310,107 +310,164 @@ class _HomePageState extends State<HomePage> {
                     ),
                     (_isAccountVerified != null)
                         ? Expanded(
-                            child: Container(
-                              alignment: Alignment.topCenter,
-                              child: GridView.builder(
-                                shrinkWrap: true,
-                                gridDelegate:
-                                    const SliverGridDelegateWithFixedCrossAxisCount(
-                                        crossAxisCount: 2,
-                                        crossAxisSpacing: 10,
-                                        mainAxisSpacing: 10),
-                                itemCount: 4,
-                                itemBuilder: (BuildContext context, int index) {
-                                  return MaterialButton(
-                                    padding: const EdgeInsets.all(0),
-                                    onPressed: () {
-                                      switch (index) {
-                                        case 0:
-                                          if (_isAccountVerified == true) {
-                                            Navigator.push(context,
-                                                MaterialPageRoute(
-                                                    builder: (context) {
-                                              return const ReportPage();
-                                            }));
-                                          } else if (_isVerificationRequestSent ==
-                                              true) {
-                                            showVerificationInProcessDialog();
-                                          } else {
-                                            showNotVerifiedDialog();
-                                          }
-                                          break;
-                                        case 1:
-                                          if (_isAccountVerified == true) {
-                                            Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                    builder: ((context) =>
-                                                        const TrackReports())));
-                                          } else if (_isVerificationRequestSent ==
-                                              true) {
-                                            showVerificationInProcessDialog();
-                                          } else {
-                                            showNotVerifiedDialog();
-                                          }
+                            child: SingleChildScrollView(
+                              child: Container(
+                                alignment: Alignment.topCenter,
+                                child: Column(
+                                  children: [
+                                    GridView.builder(
+                                      shrinkWrap: true,
+                                      gridDelegate:
+                                          const SliverGridDelegateWithFixedCrossAxisCount(
+                                              crossAxisCount: 2,
+                                              crossAxisSpacing: 10,
+                                              mainAxisSpacing: 10),
+                                      itemCount: 4,
+                                      itemBuilder:
+                                          (BuildContext context, int index) {
+                                        return MaterialButton(
+                                          padding: const EdgeInsets.all(0),
+                                          onPressed: () {
+                                            switch (index) {
+                                              case 0:
+                                                if (_isAccountVerified ==
+                                                    true) {
+                                                  Navigator.push(context,
+                                                      MaterialPageRoute(
+                                                          builder: (context) {
+                                                    return const ReportPage();
+                                                  }));
+                                                } else if (_isVerificationRequestSent ==
+                                                    true) {
+                                                  showVerificationInProcessDialog();
+                                                } else {
+                                                  showNotVerifiedDialog();
+                                                }
+                                                break;
+                                              case 1:
+                                                if (_isAccountVerified ==
+                                                    true) {
+                                                  Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                          builder: ((context) =>
+                                                              const TrackReports())));
+                                                } else if (_isVerificationRequestSent ==
+                                                    true) {
+                                                  showVerificationInProcessDialog();
+                                                } else {
+                                                  showNotVerifiedDialog();
+                                                }
 
-                                          break;
-                                        case 2:
-                                          Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      const ProfilePage()));
-                                          break;
-                                        case 3:
-                                          AwesomeToaster.showToast(
-                                              context: context,
-                                              msg: "Not Yet Implemented");
-                                          // Navigator.push(context, MaterialPageRoute(
-                                          //     builder: (context) => HelpPage()));
-                                          break;
-                                      }
-                                    },
-                                    child: Container(
-                                      height: double.infinity,
-                                      width: double.infinity,
-                                      alignment: Alignment.center,
-                                      decoration: BoxDecoration(
-                                        borderRadius: const BorderRadius.all(
-                                            Radius.circular(10)),
-                                        gradient: LinearGradient(
-                                          colors: [startBlue, endBlue],
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                        ),
-                                      ),
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Icon(
-                                            dashboardIcons[index],
-                                            color: Colors.white,
-                                            size: 30,
-                                          ),
-                                          Center(
-                                            child: Text(
-                                              textAlign: TextAlign.center,
-                                              dashboardItems[index],
-                                              style: const TextStyle(
-                                                fontFamily: "vt323",
-                                                color: Colors.white,
-                                                fontSize: 25,
+                                                break;
+                                              case 2:
+                                                Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            const ProfilePage()));
+                                                break;
+                                              case 3:
+                                                AwesomeToaster.showToast(
+                                                    context: context,
+                                                    msg: "Help | Coming Soon");
+                                                // Navigator.push(context, MaterialPageRoute(
+                                                //     builder: (context) => HelpPage()));
+                                                break;
+                                            }
+                                          },
+                                          child: Container(
+                                            height: double.infinity,
+                                            width: double.infinity,
+                                            alignment: Alignment.center,
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  const BorderRadius.all(
+                                                      Radius.circular(10)),
+                                              gradient: LinearGradient(
+                                                colors: [startBlue, endBlue],
+                                                begin: Alignment.topLeft,
+                                                end: Alignment.bottomRight,
                                               ),
                                             ),
+                                            child: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Icon(
+                                                  dashboardIcons[index],
+                                                  color: Colors.white,
+                                                  size: 30,
+                                                ),
+                                                Center(
+                                                  child: Text(
+                                                    textAlign: TextAlign.center,
+                                                    dashboardItems[index],
+                                                    style: const TextStyle(
+                                                      fontFamily: "vt323",
+                                                      color: Colors.white,
+                                                      fontSize: 25,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
                                           ),
-                                        ],
-                                      ),
+                                        );
+                                      },
                                     ),
-                                  );
-                                },
+                                    const SizedBox(height: 10),
+                                    Row(
+                                      mainAxisSize: MainAxisSize.max,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Expanded(
+                                          child: TextButton(
+                                              onPressed: () {},
+                                              child: Container(
+                                                height: 40,
+                                                width: double.infinity,
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      const BorderRadius.all(
+                                                          Radius.circular(10)),
+                                                  gradient: LinearGradient(
+                                                    colors: [
+                                                      startBlue,
+                                                      endBlue
+                                                    ],
+                                                    begin: Alignment.topRight,
+                                                    end: Alignment.bottomRight,
+                                                  ),
+                                                ),
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(10),
+                                                  child: Row(
+                                                    children: const [
+                                                      Icon(Icons
+                                                          .android_rounded),
+                                                      Text(
+                                                        "Download For Android",
+                                                        style: TextStyle(
+                                                            fontFamily: "vt323",
+                                                            fontSize: 22,
+                                                            color:
+                                                                Colors.white),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              )),
+                                        )
+                                      ],
+                                    )
+                                  ],
+                                ),
                               ),
                             ),
                           )
@@ -418,7 +475,7 @@ class _HomePageState extends State<HomePage> {
                             child: Center(
                               child: CupertinoActivityIndicator(),
                             ),
-                          )
+                          ),
                   ],
                 ),
               ),
